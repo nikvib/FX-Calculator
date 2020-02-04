@@ -6,7 +6,7 @@ import com.anz.fx.currency.converter.calculation.CurrencyConversionCalculator;
 import com.anz.fx.currency.converter.validation.InputValidation;
 
 /**
- * <h1>Convert Currency.</h1>
+ * <h1>Convert Currency</h1>
  * This class is the starting point of program execution for currency conversion
  * 
  * @author Vaibhav
