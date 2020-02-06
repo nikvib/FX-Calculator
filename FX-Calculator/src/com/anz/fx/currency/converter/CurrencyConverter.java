@@ -1,9 +1,14 @@
 package com.anz.fx.currency.converter;
 
-import java.util.Scanner;
-
-import com.anz.fx.currency.converter.calculation.CurrencyConversionCalculator;
-import com.anz.fx.currency.converter.validation.InputValidation;
+import com.anz.fx.currency.converter.constants.InputOutputReaderContants;
+import com.anz.fx.currency.converter.exception.CurrencyInputFormatException;
+import com.anz.fx.currency.converter.input.reader.InputReader;
+import com.anz.fx.currency.converter.input.reader.factory.InputReaderFactory;
+import com.anz.fx.currency.converter.input.validation.InputValidation;
+import com.anz.fx.currency.converter.output.view.OutputView;
+import com.anz.fx.currency.converter.output.view.factory.OutputViewFactory;
+import com.anz.fx.currency.converter.service.CurrencyConversionService;
+import com.anz.fx.currency.converter.service.CurrencyConversionServiceImpl;
 
 /**
  * <h1>Convert Currency</h1>
@@ -15,7 +20,7 @@ import com.anz.fx.currency.converter.validation.InputValidation;
  * 
  *
  */
-public class CurrencyConverter {
+public class CurrencyConverter {	
 	
 	/**
 	 * 
@@ -24,83 +29,76 @@ public class CurrencyConverter {
 	 * 
 	 */
 	public static void main(String[] args) {
-		String[] inputs = readInputFromConsole();		
-		boolean isValidInput = validateInputFormat(inputs);			
-		if(isValidInput) {
-			String inputCurrency = inputs[0];
-			String outputCurrency = inputs[3];
-			String inputAmount =  inputs[1];
-			CurrencyConversionCalculator conversionCalculator = new CurrencyConversionCalculator();
-			//after successful validation of inputs, calculate the currency conversion final rate
-			String result = conversionCalculator.calculateCoversionRate(inputCurrency, outputCurrency, inputAmount);
-			//output final result on console 
-			outputFinalResult(inputCurrency,outputCurrency,inputAmount,result);		
-		}
-	}
-	
-	/**
-	 * 
-	 * @param inputs from console
-	 * @return boolean true if input is valid
-	 */
-	private static boolean validateInputFormat(String[] inputs) {		
-		if(!(InputValidation.isValidLength(inputs))) {
-			outputFormatError();
-			return false;
-		}	
-		if(!(InputValidation.isValidInputFormat(inputs[2], inputs[1]))) {
-			outputFormatError();
-			return false;
+		
+		//read input
+		String[] inputs = readInputs();
+		
+		//validate input
+		String errorMessage = validateInputs(inputs);
+		
+		//get conversion rate and display output
+		if(errorMessage == null) {
+			String result = calculateRate(inputs, errorMessage);	
+			displayOutput(result);
 		}
 		
-		if(!(InputValidation.isValidCurrencyName(inputs[0],inputs[3]))) {
-			outputCurrencyError(inputs[0],inputs[3]);
-			return false;
+		//if error is present then display error
+		else {
+			displayOutput(errorMessage);
 		}
-		return true;
-	}
 		
-	/**
-	 * Reads input line entered from console and returns string array with all inputs separated by space
-	 * @return String[] of inputs separated by space 	 
-	 */
-	private static String[] readInputFromConsole() {
-		Scanner scanner = new Scanner(System.in);
-		String input = scanner.nextLine();
-		scanner.close();
-		//split the inputs by space 
-		String[] inputs = input.split(" ");
-		return inputs;
-	}	
+	}
 
-	/** 
-	 * Display error when input is given in wrong format
+	/**
+	 * 
+	 * @param inputs
+	 * @param errorMessage
+	 * @return Result (Output)
 	 */
-	private static void outputFormatError() {
-		System.out.println("Input is provided in wrong format. Please provide in format - \"<ccy1> <amount1> in <ccy2>\"");		
-	}
-	
-	/** 
-	 * Display error when input is given in correct format but currency does not exists to convert
-	 * @param inputCurrency
-	 * @param ouptputCurrency
-	 */
-	private static void outputCurrencyError(String inputCurrency, String ouptputCurrency) {
-		System.out.println("Unable to find rate for "+inputCurrency+"/"+ouptputCurrency);		
+	private static String calculateRate(String[] inputs, String errorMessage) {
+		CurrencyConversionService currencyConversionService = CurrencyConversionServiceImpl.getInstance();
+		String inputCurrency= inputs[0];
+		String outputCurrency= inputs[3];
+		String amount= inputs[1];
+		String result = currencyConversionService.calculateCoversionRate(inputCurrency, outputCurrency, amount);
+		return result;		
 	}
 	
 	/**
-	 * Display final result to user
-	 *  
-	 * @param inputCurrency
-	 * @param outputCurrency
-	 * @param inputAmount
-	 * @param result
 	 * 
-	 *
+	 * @return String[] as input Array
 	 */
-	private static void outputFinalResult(String inputCurrency, String outputCurrency, String inputAmount, String result) {
-		System.out.println(inputCurrency+" "+inputAmount+" = "+outputCurrency+" "+result);
+	private static String[] readInputs() {
+		InputReaderFactory inputReaderFactory = new InputReaderFactory();
+		InputReader readerType = inputReaderFactory.getReaderType(InputOutputReaderContants.CONSOLE);
+		String[] inputs = readerType.readInput();
+		return inputs;
 	}
+	
+	/**
+	 * 
+	 * @param inputs
+	 * @return Error message if exception is thrown
+	 */
+	private static String validateInputs(String[] inputs) {
+		InputValidation vaildation = new InputValidation();
+		String errorMessage = null;
+		try {
+			errorMessage = vaildation.validateInput(inputs);
+		} catch (CurrencyInputFormatException e) {			
+			errorMessage = e.getMessage();
+		}
+		return errorMessage;
+	}
+
+	/**
+	 * This method displays output to user
+	 * @param result
+	 */
+	private static void displayOutput(String result) {
+		OutputViewFactory outputViewFactory = new OutputViewFactory();
+		OutputView outputViewType = outputViewFactory.getOutputViewType(InputOutputReaderContants.CONSOLE);		
+		outputViewType.showOutput(result);		
+	}	
 
 }

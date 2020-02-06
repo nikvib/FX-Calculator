@@ -1,60 +1,37 @@
-package com.anz.fx.currency.converter.calculation;
+package com.anz.fx.currency.converter.service.calculation;
 
 import java.text.DecimalFormat;
 
+import com.anz.fx.currency.converter.dao.CurrencyConversionDao;
+import com.anz.fx.currency.converter.dao.CurrencyConversionDaoImpl;
 import com.anz.fx.currency.converter.data.ConversionRate;
 import com.anz.fx.currency.converter.util.ConversionRateUtil;
 
-/**
- * This class does the calculation to convert one currency to another
- * 
- * @author Vaibhav  
- * @version 1.0
- *
- */
-public class CurrencyConversionCalculator {
+public class CurrencyConversionCalculationEngine {
 	
-	/**
-	 * 
-	 * @param inputCurrency
-	 * @param outputCurrency
-	 * @param amount input that needs to be multiplied to conversion rate
-	 * @return result in String format after all calculation
-	 */
-	public String calculateCoversionRate(String inputCurrency, String outputCurrency, String amount) {	
-		int precision = ConversionRateUtil.getPrecision(outputCurrency);
-		Double rateToClaculate = calculateConversionRateByType(inputCurrency, outputCurrency);	
-		/* 
-		 * if rateToClaculate is null that means no equals, direct, inverse rates 
-		 * are found then calculate rate by cross conversion */ 
-		if(rateToClaculate == null) {
-			rateToClaculate = calculateCrossConversionRate(inputCurrency, outputCurrency);
-		}
-		String result = calculateFinalRateByAmountAndPrecision(amount, rateToClaculate, precision);
-		return result;
-	}		
-
+	private static CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
+	
 	/**
 	 * This method calculates the rate based on the direct or inverse conversion or equals conversion
 	 * @param inputCurrency
 	 * @param outputCurrency
 	 * @return rate
 	 */
-	private Double calculateConversionRateByType(String inputCurrency, String outputCurrency) {
+	public static Double calculateConversionRateByType(String inputCurrency, String outputCurrency) {
 		//converting to same currency, then rate is always 1.00
 		if(inputCurrency.equalsIgnoreCase(outputCurrency)) {
 			return 1.00;
 		}
 		
 		//check if direct conversion is available by finding the value present in the ConversionRate enum 
-		ConversionRate directCurrencyName = ConversionRateUtil.findCurrencyRateByName(inputCurrency+outputCurrency);
+		ConversionRate directCurrencyName = currencyConversionDao.findCurrencyRateByName(inputCurrency+outputCurrency);
 		//when it is not null that means direct conversion is available
 		if(directCurrencyName!=null) {
 			return directCurrencyName.getRate();
 		}
 		
 		//check if inverse conversion is available by finding the inverse value present in the ConversionRate enum 
-		ConversionRate inverseCurrencyName = ConversionRateUtil.findCurrencyRateByName(outputCurrency+inputCurrency);
+		ConversionRate inverseCurrencyName = currencyConversionDao.findCurrencyRateByName(outputCurrency+inputCurrency);
 		/* 
 		 * when it is not null that means inverse conversion is available. 
 		 * In this case, rate is inverse of direct rate = 1/directRate 
@@ -73,12 +50,12 @@ public class CurrencyConversionCalculator {
 	 * @param outputCurrency
 	 * @return final currency rate based on cross currency
 	 */
-	private Double calculateCrossConversionRate(String inputCurrency, String outputCurrency) {
+	public static Double calculateCrossConversionRate(String inputCurrency, String outputCurrency) {
 		/*
 		 * First get the currency pairs cross currency name
 		 */
-		String inputCrossCurrency = ConversionRateUtil.findCurrencyContainsAName(inputCurrency);
-		String outputCrossCurrency = ConversionRateUtil.findCurrencyContainsAName(outputCurrency);
+		String inputCrossCurrency = currencyConversionDao.findCurrencyContainsAName(inputCurrency);
+		String outputCrossCurrency = currencyConversionDao.findCurrencyContainsAName(outputCurrency);
 		
 		/*
 		 * Get cross conversion rate 
@@ -118,11 +95,12 @@ public class CurrencyConversionCalculator {
 	 * @param precision 
 	 * @return final result calculated by multiplying amount and conversion rate then formatting it based on precision for output currency
 	 */
-	private static String calculateFinalRateByAmountAndPrecision(String amount, double conversionRate, int precision) {
+	public static String calculateFinalRateByAmountAndPrecision(String amount, double conversionRate, String outputCurrency) {
+		int precision = currencyConversionDao.getPrecision(outputCurrency);
 		double calculationAmount = Double.parseDouble(amount);
 		double result = calculationAmount * conversionRate;
 		DecimalFormat format = ConversionRateUtil.getFormatByPrecision(precision);		
 		return format.format(result);
 	}
-	
+
 }
