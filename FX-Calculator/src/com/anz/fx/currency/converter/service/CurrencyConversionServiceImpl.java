@@ -18,7 +18,9 @@ import com.anz.fx.currency.converter.util.ConversionRateUtil;
  */
 public class CurrencyConversionServiceImpl  implements CurrencyConversionService  {
 	
-	private static CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
+	CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
+	CurrencyConversionCalculationEngine currencyConversionCalculationEngine1 = new NonCrossCurrencyConversionCalculationEngine();
+	CurrencyConversionCalculationEngine currencyConversionCalculationEngine2 = new CrossCurrencyConversionCalculationEngine();
 	
 	
 	 //Singleton to make sure only one instance is created of service throughout
@@ -45,17 +47,20 @@ public class CurrencyConversionServiceImpl  implements CurrencyConversionService
 	public String calculateCoversionRate(String inputCurrency, String outputCurrency, String amount) {
 		//Calculate method that is required for conversion
 		ConversionMethod conversionMethod = currencyConversionDao.getConversionMethod(inputCurrency, outputCurrency);
-		CurrencyConversionCalculationEngine currencyConversionCalculationEngine;
+		String result;
 		if(!conversionMethod.equals(ConversionMethod.CROSS)) {
-			currencyConversionCalculationEngine = new NonCrossCurrencyConversionCalculationEngine();
-		}else {
-			currencyConversionCalculationEngine = new CrossCurrencyConversionCalculationEngine();
-		}
-		//Calculate conversion rate depending on class to call - either cross conversion or non cross conversion
-		Double coversionRate = currencyConversionCalculationEngine.calculateConversionRate(inputCurrency, outputCurrency, conversionMethod);
+			Double coversionRate = currencyConversionCalculationEngine1.calculateConversionRate(inputCurrency, outputCurrency, conversionMethod);
 		
 		//calculate final amount
-		String result = currencyConversionCalculationEngine.calculateFinalRateByAmountAndPrecision(amount, coversionRate, outputCurrency);		
+		 result = currencyConversionCalculationEngine1.calculateFinalRateByAmountAndPrecision(amount, coversionRate, outputCurrency);		
+		}else {
+			Double coversionRate = currencyConversionCalculationEngine2.calculateConversionRate(inputCurrency, outputCurrency, conversionMethod);
+		
+		//calculate final amount
+		 result = currencyConversionCalculationEngine2.calculateFinalRateByAmountAndPrecision(amount, coversionRate, outputCurrency);		
+		}
+		//Calculate conversion rate depending on class to call - either cross conversion or non cross conversion
+		
 		String formattedResult = ConversionRateUtil.formatMessageByPlaceholders(Messages.RESULT, inputCurrency,amount,outputCurrency,result);
 		return formattedResult;
 	}		

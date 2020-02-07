@@ -14,7 +14,7 @@ import com.anz.fx.currency.converter.data.ConversionMethod;
  */
 public class CrossCurrencyConversionCalculationEngine extends CurrencyConversionCalculationEngine {
 	
-	private static CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
+	CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
 
 	@Override
 	public Double calculateConversionRate(String inputCurrency, String outputCurrency, ConversionMethod conversionMethod) {

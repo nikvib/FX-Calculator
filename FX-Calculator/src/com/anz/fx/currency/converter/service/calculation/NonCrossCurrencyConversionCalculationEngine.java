@@ -15,7 +15,7 @@ import com.anz.fx.currency.converter.data.ConversionMethod;
  */
 public class NonCrossCurrencyConversionCalculationEngine extends CurrencyConversionCalculationEngine {
 	
-	private static CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
+	CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
 	
 	/**
 	 * This method calculates the rate based on the direct or inverse conversion or equals conversion
