@@ -10,7 +10,7 @@ import com.anz.fx.currency.converter.input.validation.InputValidation;
 
 public class InputValidationTest {
 	
-	InputValidation inputValidation = null;
+	private InputValidation inputValidation = null;
 	
 	@Before
 	public void createInstance(){

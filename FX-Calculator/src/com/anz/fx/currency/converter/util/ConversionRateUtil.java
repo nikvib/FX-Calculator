@@ -30,9 +30,9 @@ public class ConversionRateUtil {
 	 * @return formatted String which will be formatted based on place holders passed to format method of String
 	 */
 	public static String formatMessageByPlaceholders(String message, Object...placeHolder) {
-		return String.format(message, placeHolder);
-		
-	}
+		return String.format(message, placeHolder);		
+	}	
+	
 	
 	/**
 	 * 

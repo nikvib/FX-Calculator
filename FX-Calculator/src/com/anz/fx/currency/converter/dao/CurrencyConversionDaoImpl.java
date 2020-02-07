@@ -1,5 +1,6 @@
 package com.anz.fx.currency.converter.dao;
 
+import com.anz.fx.currency.converter.data.ConversionMethod;
 import com.anz.fx.currency.converter.data.ConversionRate;
 import com.anz.fx.currency.converter.data.Currency;
 
@@ -92,5 +93,45 @@ public class CurrencyConversionDaoImpl implements CurrencyConversionDao {
 		}
 		return 0;		
 	}
+	
+	 /**
+	  * 
+	  * @param inputCurrency
+	  * @param outputCurrency
+	  * @return ConversionMethod to convert
+	  */
+	public ConversionMethod getConversionMethod(String inputCurrency, String outputCurrency) {
+		if(inputCurrency.equalsIgnoreCase(outputCurrency)) {
+			return ConversionMethod.EQUALS;
+		}
+		ConversionRate directCurrencyName = findCurrencyRateByName(inputCurrency+outputCurrency);
+		//when it is not null that means direct conversion is available
+		if(directCurrencyName!=null) {
+			return ConversionMethod.DIRECT;
+		}
+		ConversionRate inverseCurrencyName = findCurrencyRateByName(outputCurrency+inputCurrency);
+		//when it is not null that means direct conversion is available
+		if(inverseCurrencyName!=null) {
+			return ConversionMethod.INVERSE;
+		}
+		return ConversionMethod.CROSS;
+	}
+	
+	@Override
+	public Double conversionRateByConversionMethod(String inputCurrency, String outputCurrency, ConversionMethod conversionMethod) {
+		switch(conversionMethod) {
+		case EQUALS:
+			return 1.00;
+		case DIRECT:
+			ConversionRate directConversionRate = findCurrencyRateByName(inputCurrency+outputCurrency);
+			return directConversionRate.getRate();
+		case INVERSE:
+			ConversionRate inverseConversionRate = findCurrencyRateByName(outputCurrency+inputCurrency);
+			return 1 / inverseConversionRate.getRate();
+		default:
+			return null;
+		}		
+		
+	}	
 
 }

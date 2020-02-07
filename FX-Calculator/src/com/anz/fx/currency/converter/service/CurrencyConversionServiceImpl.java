@@ -1,7 +1,12 @@
 package com.anz.fx.currency.converter.service;
 
 import com.anz.fx.currency.converter.constants.Messages;
+import com.anz.fx.currency.converter.dao.CurrencyConversionDao;
+import com.anz.fx.currency.converter.dao.CurrencyConversionDaoImpl;
+import com.anz.fx.currency.converter.data.ConversionMethod;
+import com.anz.fx.currency.converter.service.calculation.CrossCurrencyConversionCalculationEngine;
 import com.anz.fx.currency.converter.service.calculation.CurrencyConversionCalculationEngine;
+import com.anz.fx.currency.converter.service.calculation.NonCrossCurrencyConversionCalculationEngine;
 import com.anz.fx.currency.converter.util.ConversionRateUtil;
 
 /**
@@ -12,6 +17,8 @@ import com.anz.fx.currency.converter.util.ConversionRateUtil;
  *
  */
 public class CurrencyConversionServiceImpl  implements CurrencyConversionService  {
+	
+	private static CurrencyConversionDao currencyConversionDao = CurrencyConversionDaoImpl.getInstance();
 	
 	
 	 //Singleton to make sure only one instance is created of service throughout
@@ -35,15 +42,20 @@ public class CurrencyConversionServiceImpl  implements CurrencyConversionService
 	 * @param amount input that needs to be multiplied to conversion rate
 	 * @return result in String format after all calculation
 	 */
-	public String calculateCoversionRate(String inputCurrency, String outputCurrency, String amount) {		
-		Double rateToClaculate = CurrencyConversionCalculationEngine.calculateConversionRateByType(inputCurrency, outputCurrency);	
-		/* 
-		 * if rateToClaculate is null that means no equals, direct, inverse rates 
-		 * are found then calculate rate by cross conversion */ 
-		if(rateToClaculate == null) {
-			rateToClaculate = CurrencyConversionCalculationEngine.calculateCrossConversionRate(inputCurrency, outputCurrency);
+	public String calculateCoversionRate(String inputCurrency, String outputCurrency, String amount) {
+		//Calculate method that is required for conversion
+		ConversionMethod conversionMethod = currencyConversionDao.getConversionMethod(inputCurrency, outputCurrency);
+		CurrencyConversionCalculationEngine currencyConversionCalculationEngine;
+		if(!conversionMethod.equals(ConversionMethod.CROSS)) {
+			currencyConversionCalculationEngine = new NonCrossCurrencyConversionCalculationEngine();
+		}else {
+			currencyConversionCalculationEngine = new CrossCurrencyConversionCalculationEngine();
 		}
-		String result = CurrencyConversionCalculationEngine.calculateFinalRateByAmountAndPrecision(amount, rateToClaculate, outputCurrency);		
+		//Calculate conversion rate depending on class to call - either cross conversion or non cross conversion
+		Double coversionRate = currencyConversionCalculationEngine.calculateConversionRate(inputCurrency, outputCurrency, conversionMethod);
+		
+		//calculate final amount
+		String result = currencyConversionCalculationEngine.calculateFinalRateByAmountAndPrecision(amount, coversionRate, outputCurrency);		
 		String formattedResult = ConversionRateUtil.formatMessageByPlaceholders(Messages.RESULT, inputCurrency,amount,outputCurrency,result);
 		return formattedResult;
 	}		
