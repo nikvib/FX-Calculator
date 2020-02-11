@@ -1,4 +1,4 @@
-package com.anz.fx.currency.converter.test;
+package com.anz.fx.currency.converter.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

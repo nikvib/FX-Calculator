@@ -1,14 +1,14 @@
-package com.anz.fx.currency.converter.test;
+package com.anz.fx.currency.converter.calculation;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import com.anz.fx.currency.converter.calculation.CrossCurrencyConversionCalculationEngine;
+import com.anz.fx.currency.converter.calculation.CurrencyConversionCalculationEngine;
+import com.anz.fx.currency.converter.calculation.NonCrossCurrencyConversionCalculationEngine;
 import com.anz.fx.currency.converter.data.ConversionMethod;
-import com.anz.fx.currency.converter.service.calculation.CrossCurrencyConversionCalculationEngine;
-import com.anz.fx.currency.converter.service.calculation.CurrencyConversionCalculationEngine;
-import com.anz.fx.currency.converter.service.calculation.NonCrossCurrencyConversionCalculationEngine;
 
 public class CurrencyConversionCalculationEngineTest {	
 	

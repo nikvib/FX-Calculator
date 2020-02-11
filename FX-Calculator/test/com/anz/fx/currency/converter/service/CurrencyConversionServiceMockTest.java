@@ -1,4 +1,4 @@
-package com.anz.fx.currency.converter.test;
+package com.anz.fx.currency.converter.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
@@ -11,11 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.anz.fx.currency.converter.calculation.CurrencyConversionCalculationEngine;
 import com.anz.fx.currency.converter.dao.CurrencyConversionDao;
 import com.anz.fx.currency.converter.data.ConversionMethod;
 import com.anz.fx.currency.converter.service.CurrencyConversionService;
 import com.anz.fx.currency.converter.service.CurrencyConversionServiceImpl;
-import com.anz.fx.currency.converter.service.calculation.CurrencyConversionCalculationEngine;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CurrencyConversionServiceMockTest {

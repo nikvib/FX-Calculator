@@ -1,4 +1,4 @@
-package com.anz.fx.currency.converter.test;
+package com.anz.fx.currency.converter.input.validation;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

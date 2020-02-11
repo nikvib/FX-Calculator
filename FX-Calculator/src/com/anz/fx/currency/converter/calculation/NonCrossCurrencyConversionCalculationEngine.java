@@ -1,4 +1,4 @@
-package com.anz.fx.currency.converter.service.calculation;
+package com.anz.fx.currency.converter.calculation;
 
 import com.anz.fx.currency.converter.dao.CurrencyConversionDao;
 import com.anz.fx.currency.converter.dao.CurrencyConversionDaoImpl;
